@@ -26,10 +26,12 @@ spec:
       labels:
         app: mlflow
     spec:
+      imagePullSecrets:
+        - name: ghcr-pull
       containers:
         - name: mlflow
-          image: docker-compose-mlflow:latest
-          imagePullPolicy: IfNotPresent
+          image: ghcr.io/mlops-project-platform/mlflow:v1.0.0
+          imagePullPolicy: Always
           ports:
             - containerPort: 5000
           env:
