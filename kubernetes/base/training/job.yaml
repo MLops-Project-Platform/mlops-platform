@@ -1,0 +1,21 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: train-iris-gpu
+  namespace: mlops
+spec:
+  backoffLimit: 0
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: train
+          image: ghcr.io/mlops-project-platform/mlops-training:v0.0.1
+          env:
+            - name: MLFLOW_TRACKING_URI
+              value: "http://mlflow.mlops.svc.cluster.local:5000"
+            - name: CONFIG_PATH
+              value: "configs/default.yaml"
+          resources:
+            limits:
+              nvidia.com/gpu: "1"
