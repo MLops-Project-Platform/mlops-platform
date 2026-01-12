@@ -25,7 +25,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: MLops-Project-Platform/mlops-platform
-          ref: master
+          ref: main
           path: mlops-platform
 
       - name: Set up Docker Buildx
