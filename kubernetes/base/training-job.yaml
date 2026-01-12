@@ -22,4 +22,6 @@ spec:
           resources:
             limits:
               nvidia.com/gpu: "1"
-          command: ["python", "src/train.py"]
+          workingDir: "/workspace"
+          command: ["python"]
+          args: ["src/train.py"]
