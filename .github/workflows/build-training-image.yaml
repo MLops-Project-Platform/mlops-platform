@@ -24,7 +24,7 @@ jobs:
       - name: Checkout platform repo (for Dockerfile)
         uses: actions/checkout@v4
         with:
-          repository: almog-nachshon/mlops-platform
+          repository: MLops-Project-Platform/mlops-platform
           ref: master
           path: mlops-platform
 
