@@ -12,7 +12,7 @@ spec:
         - name: ghcr-pull
       containers:
         - name: train
-          image: ghcr.io/mlops-project-platform/mlops-research-template:v1.0.3-prod
+          image: ghcr.io/mlops-project-platform/mlops-research-template:v1.0.4-prod
           imagePullPolicy: Always
           env:
             - name: MLFLOW_TRACKING_URI
