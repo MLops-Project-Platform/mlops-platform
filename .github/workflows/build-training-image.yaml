@@ -10,16 +10,18 @@ on:
         required: true
         type: string
 
+permissions:
+  contents: read
+  packages: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-
     steps:
       - name: Checkout research repo
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Checkout platform repo (for Dockerfile)
         uses: actions/checkout@v4
@@ -27,6 +29,7 @@ jobs:
           repository: MLops-Project-Platform/mlops-platform
           ref: main
           path: mlops-platform
+          fetch-depth: 1
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -38,6 +41,23 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Decide environment suffix (prod/qa/dev)
+        id: env
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --all --tags
+          SHA="${GITHUB_SHA}"
+
+          # האם ה-commit נמצא ב-main או ב-qa?
+          if git branch -r --contains "$SHA" | grep -q "origin/main"; then
+            echo "suffix=prod" >> "$GITHUB_OUTPUT"
+          elif git branch -r --contains "$SHA" | grep -q "origin/qa"; then
+            echo "suffix=qa" >> "$GITHUB_OUTPUT"
+          else
+            echo "suffix=dev" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Build & Push
         uses: docker/build-push-action@v6
         with:
@@ -45,5 +65,5 @@ jobs:
           file: mlops-platform/${{ inputs.dockerfile_path }}
           push: true
           tags: |
-            ghcr.io/mlops-project-platform/${{ inputs.image_name }}:${{ github.ref_name }}
-            ghcr.io/mlops-project-platform/${{ inputs.image_name }}:latest
+            ghcr.io/mlops-project-platform/${{ inputs.image_name }}:${{ github.ref_name }}-${{ steps.env.outputs.suffix }}
+            ghcr.io/mlops-project-platform/${{ inputs.image_name }}:${{ github.sha }}
