@@ -1,4 +1,4 @@
-name: Build Training Image (ORG)
+name: Build & Push Training Image
 
 on:
   workflow_call:
@@ -9,9 +9,6 @@ on:
       dockerfile_path:
         required: true
         type: string
-    secrets:
-      GHCR_TOKEN:
-        required: true
 
 permissions:
   contents: read
@@ -20,24 +17,26 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout research repo
         uses: actions/checkout@v4
 
-      - name: Checkout mlops-platform
+      - name: Checkout platform repo (for Dockerfile)
         uses: actions/checkout@v4
         with:
-          repository: MLops-Project-Platform/mlops-platform
-          ref: main
+          repository: almog-nachshon/mlops-platform
+          ref: master
           path: mlops-platform
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
       - name: Login to GHCR
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.GHCR_TOKEN }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build & Push
         uses: docker/build-push-action@v6
@@ -46,4 +45,5 @@ jobs:
           file: mlops-platform/${{ inputs.dockerfile_path }}
           push: true
           tags: |
+            ghcr.io/mlops-project-platform/${{ inputs.image_name }}:${{ github.ref_name }}
             ghcr.io/mlops-project-platform/${{ inputs.image_name }}:latest
